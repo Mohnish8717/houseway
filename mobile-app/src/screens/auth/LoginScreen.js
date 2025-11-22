@@ -129,8 +129,30 @@ const LoginScreen = ({ navigation }) => {
           {/* Demo Credentials */}
           <View style={styles.demoContainer}>
             <Text style={styles.demoTitle}>Demo Credentials:</Text>
-            <Text style={styles.demoText}>Email: john.doe@example.com</Text>
-            <Text style={styles.demoText}>Password: Password123</Text>
+
+            <View style={styles.demoRoleContainer}>
+              <Text style={styles.demoRoleTitle}>👑 Admin (Owner):</Text>
+              <Text style={styles.demoText}>Email: admin@houseway.com</Text>
+              <Text style={styles.demoText}>Password: Admin123</Text>
+            </View>
+
+            <View style={styles.demoRoleContainer}>
+              <Text style={styles.demoRoleTitle}>👷 Employee:</Text>
+              <Text style={styles.demoText}>Email: employee@houseway.com</Text>
+              <Text style={styles.demoText}>Password: Employee123</Text>
+            </View>
+
+            <View style={styles.demoRoleContainer}>
+              <Text style={styles.demoRoleTitle}>🔧 Vendor:</Text>
+              <Text style={styles.demoText}>Email: vendor@houseway.com</Text>
+              <Text style={styles.demoText}>Password: Vendor123</Text>
+            </View>
+
+            <View style={styles.demoRoleContainer}>
+              <Text style={styles.demoRoleTitle}>🏠 Client:</Text>
+              <Text style={styles.demoText}>Email: client@houseway.com</Text>
+              <Text style={styles.demoText}>Password: Client123</Text>
+            </View>
           </View>
         </View>
       </ScrollView>
@@ -238,15 +260,31 @@ const styles = StyleSheet.create({
     borderColor: '#e3f2fd',
   },
   demoTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#1976d2',
+    marginBottom: 10,
+    textAlign: 'center',
+  },
+  demoRoleContainer: {
+    marginBottom: 12,
+    padding: 8,
+    backgroundColor: '#ffffff',
+    borderRadius: 6,
+    borderLeftWidth: 3,
+    borderLeftColor: '#1976d2',
+  },
+  demoRoleTitle: {
     fontSize: 14,
     fontWeight: '600',
     color: '#1976d2',
-    marginBottom: 5,
+    marginBottom: 4,
   },
   demoText: {
-    fontSize: 14,
+    fontSize: 13,
     color: '#1976d2',
     fontFamily: Platform.OS === 'ios' ? 'Courier' : 'monospace',
+    marginBottom: 2,
   },
 });
 

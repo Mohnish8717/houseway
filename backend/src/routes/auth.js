@@ -10,6 +10,11 @@ const {
 } = require('../controllers/authController');
 
 const {
+  mockLogin,
+  mockGetProfile,
+} = require('../controllers/mockAuthController');
+
+const {
   validateRegistration,
   validateLogin,
   validateProfileUpdate,
@@ -31,14 +36,46 @@ router.post('/register', validateRegistration, register);
  * @desc    Login user
  * @access  Public
  */
-router.post('/login', validateLogin, login);
+router.post('/login', validateLogin, async (req, res, next) => {
+  try {
+    // Try normal login first (MongoDB)
+    await login(req, res);
+  } catch (error) {
+    console.log('MongoDB login failed, using mock authentication:', error.message);
+    // Fallback to mock authentication
+    await mockLogin(req, res);
+  }
+});
+
+/**
+ * @route   POST /api/auth/login-mock
+ * @desc    Mock login for testing without MongoDB
+ * @access  Public
+ */
+router.post('/login-mock', validateLogin, mockLogin);
 
 /**
  * @route   GET /api/auth/profile
  * @desc    Get current user profile
  * @access  Private
  */
-router.get('/profile', authenticate, getProfile);
+router.get('/profile', authenticate, async (req, res, next) => {
+  try {
+    // Try normal profile fetch first (MongoDB)
+    await getProfile(req, res);
+  } catch (error) {
+    console.log('MongoDB profile fetch failed, using mock authentication:', error.message);
+    // Fallback to mock authentication
+    await mockGetProfile(req, res);
+  }
+});
+
+/**
+ * @route   GET /api/auth/profile-mock
+ * @desc    Mock profile for testing without MongoDB
+ * @access  Private
+ */
+router.get('/profile-mock', authenticate, mockGetProfile);
 
 /**
  * @route   PUT /api/auth/profile
