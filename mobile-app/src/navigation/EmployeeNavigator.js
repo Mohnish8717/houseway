@@ -17,7 +17,7 @@ const Stack = createStackNavigator();
 const EmployeeNavigator = () => {
   return (
     <Stack.Navigator
-      initialRouteName="EmployeeDashboard"
+      initialRouteName="LoginSelection"
       screenOptions={{
         headerShown: false,
         gestureEnabled: true,
