@@ -11,7 +11,7 @@ const Stack = createStackNavigator();
 const AuthNavigator = () => {
   return (
     <Stack.Navigator
-      initialRouteName="Guest"
+      initialRouteName="Login"
       screenOptions={{
         headerStyle: {
           backgroundColor: '#2196F3',
@@ -22,23 +22,26 @@ const AuthNavigator = () => {
         },
       }}
     >
-      <Stack.Screen 
-        name="Guest" 
-        component={GuestScreen} 
-        options={{ 
+      <Stack.Screen
+        name="Login"
+        component={LoginScreen}
+        options={{
+          title: 'Houseway Login',
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name="Register"
+        component={RegisterScreen}
+        options={{ title: 'Register' }}
+      />
+      <Stack.Screen
+        name="Guest"
+        component={GuestScreen}
+        options={{
           title: 'Houseway - House Design Company',
           headerShown: false,
-        }} 
-      />
-      <Stack.Screen 
-        name="Login" 
-        component={LoginScreen} 
-        options={{ title: 'Login' }} 
-      />
-      <Stack.Screen 
-        name="Register" 
-        component={RegisterScreen} 
-        options={{ title: 'Register' }} 
+        }}
       />
     </Stack.Navigator>
   );
