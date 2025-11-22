@@ -22,7 +22,7 @@ import GradientButton from '../../components/clientManagement/GradientButton';
 import { clientsAPI } from '../../utils/api';
 
 const HomeDashboardScreen = ({ navigation }) => {
-  const { user } = useAuth();
+  const { user, isAuthenticated } = useAuth();
   const [refreshing, setRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [dashboardStats, setDashboardStats] = useState({
@@ -34,11 +34,22 @@ const HomeDashboardScreen = ({ navigation }) => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    loadDashboardData();
-  }, []);
+    if (isAuthenticated && user) {
+      loadDashboardData();
+    } else {
+      setIsLoading(false);
+    }
+  }, [isAuthenticated, user]);
 
   const loadDashboardData = async () => {
     try {
+      // Check if user is authenticated before making API call
+      if (!isAuthenticated || !user) {
+        console.log('User not authenticated, skipping dashboard data load');
+        setIsLoading(false);
+        return;
+      }
+      
       setIsLoading(true);
 
       // Get dashboard stats
@@ -54,6 +65,12 @@ const HomeDashboardScreen = ({ navigation }) => {
   };
 
   const onRefresh = async () => {
+    if (!isAuthenticated || !user) {
+      console.log('User not authenticated, skipping refresh');
+      setRefreshing(false);
+      return;
+    }
+    
     setRefreshing(true);
     await loadDashboardData();
     setRefreshing(false);
