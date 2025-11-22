@@ -406,5 +406,71 @@ export const workStatusAPI = {
     api.get(`/work-status/${id}`),
 };
 
+// Client Management API endpoints
+export const clientsAPI = {
+  // Dashboard stats
+  getDashboardStats: () =>
+    api.get('/clients/dashboard/stats'),
+
+  // Client CRUD operations
+  getClients: (params = {}) =>
+    api.get('/clients', { params }),
+
+  getClient: (clientId) =>
+    api.get(`/clients/${clientId}`),
+
+  getClientProjects: (clientId, params = {}) =>
+    api.get(`/clients/${clientId}/projects`, { params }),
+
+  updateClient: (clientId, clientData) =>
+    api.put(`/clients/${clientId}`, clientData, { headers: { 'Content-Type': 'application/json' } }),
+
+  // Timeline events
+  addTimelineEvent: (clientId, eventData) =>
+    api.post(`/clients/${clientId}/timeline`, eventData, { headers: { 'Content-Type': 'application/json' } }),
+
+  getClientTimeline: (clientId, params = {}) =>
+    api.get(`/clients/${clientId}/timeline`, { params }),
+
+  // Media operations
+  uploadClientMedia: (clientId, formData) =>
+    api.post(`/clients/${clientId}/media`, formData),
+
+  getClientMedia: (clientId, params = {}) =>
+    api.get(`/clients/${clientId}/media`, { params }),
+
+  // Invoice operations
+  createClientInvoice: (clientId, invoiceData) =>
+    api.post(`/clients/${clientId}/invoices`, invoiceData, { headers: { 'Content-Type': 'application/json' } }),
+
+  getClientInvoices: (clientId, params = {}) =>
+    api.get(`/clients/${clientId}/invoices`, { params }),
+};
+
+// Add client management methods to projectsAPI
+projectsAPI.getClientProjects = (clientId, params = {}) =>
+  api.get(`/projects/client/${clientId}`, { params });
+
+projectsAPI.getProject = (projectId) =>
+  api.get(`/projects/${projectId}`);
+
+projectsAPI.getProjectTimeline = (projectId, params = {}) =>
+  api.get(`/projects/${projectId}/timeline`, { params });
+
+projectsAPI.addProjectTimelineEvent = (projectId, eventData) =>
+  api.post(`/projects/${projectId}/timeline`, eventData, { headers: { 'Content-Type': 'application/json' } });
+
+projectsAPI.getProjectMedia = (projectId, params = {}) =>
+  api.get(`/projects/${projectId}/media`, { params });
+
+projectsAPI.uploadProjectMedia = (projectId, formData) =>
+  api.post(`/projects/${projectId}/media`, formData);
+
+projectsAPI.getProjectInvoices = (projectId, params = {}) =>
+  api.get(`/projects/${projectId}/invoices`, { params });
+
+projectsAPI.createProjectInvoice = (projectId, invoiceData) =>
+  api.post(`/projects/${projectId}/invoices`, invoiceData, { headers: { 'Content-Type': 'application/json' } });
+
 // Export the main api instance for custom requests
 export default api;
