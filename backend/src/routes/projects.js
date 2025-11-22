@@ -653,4 +653,556 @@ router.put('/:id/progress', authenticate, isOwnerOrEmployee, async (req, res) =>
   }
 });
 
+// ===== CLIENT MANAGEMENT EXTENSIONS =====
+
+/**
+ * @route   GET /api/projects/client/:clientId
+ * @desc    Get all projects for specific client
+ * @access  Private (Owner, Employee, Client)
+ */
+router.get('/client/:clientId', authenticate, async (req, res) => {
+  try {
+    const { clientId } = req.params;
+    const {
+      page = 1,
+      limit = 20,
+      status,
+      sortBy = 'createdAt',
+      sortOrder = 'desc'
+    } = req.query;
+
+    let query = { client: clientId };
+
+    // Check access permissions
+    if (req.user.role === 'client' && req.user._id.toString() !== clientId) {
+      return res.status(403).json({
+        success: false,
+        message: 'Access denied. You can only view your own projects.',
+      });
+    }
+
+    if (req.user.role === 'employee') {
+      // Employees can only see projects they're assigned to
+      query.assignedEmployees = req.user._id;
+    }
+
+    if (status) {
+      query.status = status;
+    }
+
+    const sortConfig = {};
+    sortConfig[sortBy] = sortOrder === 'desc' ? -1 : 1;
+
+    const projects = await Project.find(query)
+      .populate('client', 'firstName lastName email clientDetails')
+      .populate('assignedEmployees', 'firstName lastName email')
+      .populate('assignedVendors', 'firstName lastName email vendorDetails.companyName')
+      .populate('createdBy', 'firstName lastName email')
+      .sort(sortConfig)
+      .limit(limit * 1)
+      .skip((page - 1) * limit);
+
+    const total = await Project.countDocuments(query);
+
+    res.json({
+      success: true,
+      data: {
+        projects,
+        pagination: {
+          current: parseInt(page),
+          pages: Math.ceil(total / limit),
+          total,
+        },
+      },
+    });
+  } catch (error) {
+    console.error('Get client projects error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to get client projects',
+      error: error.message,
+    });
+  }
+});
+
+/**
+ * @route   POST /api/projects/:id/timeline
+ * @desc    Add timeline event to project
+ * @access  Private (Owner, Employee)
+ */
+router.post('/:id/timeline', authenticate, isOwnerOrEmployee, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { eventType, title, description, attachments = [], visibility = 'public' } = req.body;
+
+    // Validate required fields
+    if (!eventType || !title || !description) {
+      return res.status(400).json({
+        success: false,
+        message: 'Missing required fields: eventType, title, description',
+      });
+    }
+
+    const project = await Project.findById(id)
+      .populate('client');
+
+    if (!project) {
+      return res.status(404).json({
+        success: false,
+        message: 'Project not found',
+      });
+    }
+
+    // Check if employee is assigned to the project (if not owner)
+    if (req.user.role === 'employee' &&
+        !project.assignedEmployees.some(emp => emp._id.toString() === req.user._id.toString())) {
+      return res.status(403).json({
+        success: false,
+        message: 'You are not assigned to this project',
+      });
+    }
+
+    const timelineEvent = new ClientTimelineEvent({
+      clientId: project.client._id,
+      projectId: id,
+      eventType,
+      title,
+      description,
+      attachments,
+      visibility,
+      createdBy: req.user._id,
+    });
+
+    await timelineEvent.save();
+
+    const io = req.app.get('io');
+    if (io) {
+      io.emit('projectTimelineUpdated', {
+        projectId: id,
+        clientId: project.client._id,
+        event: timelineEvent
+      });
+    }
+
+    res.status(201).json({
+      success: true,
+      message: 'Timeline event added successfully',
+      data: { timelineEvent },
+    });
+  } catch (error) {
+    console.error('Add timeline event error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to add timeline event',
+      error: error.message,
+    });
+  }
+});
+
+/**
+ * @route   GET /api/projects/:id/timeline
+ * @desc    Get project timeline
+ * @access  Private (Owner, Employee, Client with access)
+ */
+router.get('/:id/timeline', authenticate, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const {
+      page = 1,
+      limit = 20,
+      eventType,
+      visibility
+    } = req.query;
+
+    const project = await Project.findById(id)
+      .populate('client');
+
+    if (!project) {
+      return res.status(404).json({
+        success: false,
+        message: 'Project not found',
+      });
+    }
+
+    // Check access permissions
+    const hasAccess =
+      req.user.role === 'owner' ||
+      (req.user.role === 'client' && project.client._id.toString() === req.user._id.toString()) ||
+      (req.user.role === 'employee' && project.assignedEmployees.some(emp => emp._id.toString() === req.user._id.toString()));
+
+    if (!hasAccess) {
+      return res.status(403).json({
+        success: false,
+        message: 'Access denied',
+      });
+    }
+
+    const options = {
+      page: parseInt(page),
+      limit: parseInt(limit),
+      eventType,
+      visibility
+    };
+
+    const events = await ClientTimelineEvent.getProjectTimeline(id, options);
+    const total = await ClientTimelineEvent.countDocuments({ projectId: id });
+
+    res.json({
+      success: true,
+      data: {
+        events,
+        pagination: {
+          current: parseInt(page),
+          pages: Math.ceil(total / limit),
+          total,
+        },
+      },
+    });
+  } catch (error) {
+    console.error('Get project timeline error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to get project timeline',
+      error: error.message,
+    });
+  }
+});
+
+/**
+ * @route   POST /api/projects/:id/media
+ * @desc    Upload project media
+ * @access  Private (Owner, Employee)
+ */
+router.post('/:id/media', authenticate, isOwnerOrEmployee, uploadMultiple('project-media', 10), async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { description = '', tags = [], category = 'progress', isPublic = true } = req.body;
+
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'No files uploaded',
+      });
+    }
+
+    const project = await Project.findById(id)
+      .populate('client');
+
+    if (!project) {
+      return res.status(404).json({
+        success: false,
+        message: 'Project not found',
+      });
+    }
+
+    // Check if employee is assigned to the project (if not owner)
+    if (req.user.role === 'employee' &&
+        !project.assignedEmployees.some(emp => emp._id.toString() === req.user._id.toString())) {
+      return res.status(403).json({
+        success: false,
+        message: 'You are not assigned to this project',
+      });
+    }
+
+    // Process uploaded files
+    const mediaFiles = req.files.map(file => {
+      const url = getFileUrl(req, `project-media/${file.filename}`);
+      return {
+        clientId: project.client._id,
+        projectId: id,
+        filename: file.filename,
+        originalName: file.originalname,
+        url,
+        type: file.mimetype.startsWith('image/') ? 'image' :
+              file.mimetype.startsWith('video/') ? 'video' : 'document',
+        mimeType: file.mimetype,
+        size: file.size,
+        description,
+        tags: Array.isArray(tags) ? tags : tags.split(',').map(tag => tag.trim()),
+        category,
+        isPublic: isPublic === 'true',
+        uploadedBy: req.user._id,
+        // Add dimensions for images if available
+        dimensions: file.mimetype.startsWith('image/') ? {
+          width: file.width || null,
+          height: file.height || null
+        } : undefined
+      };
+    });
+
+    const savedMedia = await ClientMedia.insertMany(mediaFiles);
+
+    const io = req.app.get('io');
+    if (io) {
+      io.emit('projectMediaUploaded', {
+        projectId: id,
+        clientId: project.client._id,
+        media: savedMedia
+      });
+    }
+
+    res.status(201).json({
+      success: true,
+      message: 'Media uploaded successfully',
+      data: { media: savedMedia },
+    });
+  } catch (error) {
+    console.error('Upload project media error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to upload project media',
+      error: error.message,
+    });
+  }
+});
+
+/**
+ * @route   GET /api/projects/:id/media
+ * @desc    Get project media
+ * @access  Private (Owner, Employee, Client with access)
+ */
+router.get('/:id/media', authenticate, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const {
+      page = 1,
+      limit = 20,
+      type,
+      category,
+      isPublic
+    } = req.query;
+
+    const project = await Project.findById(id)
+      .populate('client');
+
+    if (!project) {
+      return res.status(404).json({
+        success: false,
+        message: 'Project not found',
+      });
+    }
+
+    // Check access permissions
+    const hasAccess =
+      req.user.role === 'owner' ||
+      (req.user.role === 'client' && project.client._id.toString() === req.user._id.toString()) ||
+      (req.user.role === 'employee' && project.assignedEmployees.some(emp => emp._id.toString() === req.user._id.toString()));
+
+    if (!hasAccess) {
+      return res.status(403).json({
+        success: false,
+        message: 'Access denied',
+      });
+    }
+
+    const options = {
+      page: parseInt(page),
+      limit: parseInt(limit),
+      type,
+      category,
+      isPublic: isPublic !== undefined ? isPublic === 'true' : undefined
+    };
+
+    const media = await ClientMedia.getProjectMedia(id, options);
+
+    // Get total count for pagination
+    const query = { projectId: id };
+    if (type) query.type = type;
+    if (category) query.category = category;
+    if (isPublic !== undefined) query.isPublic = isPublic === 'true';
+
+    const total = await ClientMedia.countDocuments(query);
+
+    res.json({
+      success: true,
+      data: {
+        media,
+        pagination: {
+          current: parseInt(page),
+          pages: Math.ceil(total / limit),
+          total,
+        },
+      },
+    });
+  } catch (error) {
+    console.error('Get project media error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to get project media',
+      error: error.message,
+    });
+  }
+});
+
+/**
+ * @route   POST /api/projects/:id/invoices
+ * @desc    Create project invoice
+ * @access  Private (Owner, Employee)
+ */
+router.post('/:id/invoices', authenticate, isOwnerOrEmployee, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const {
+      lineItems,
+      taxRate = 0,
+      discountType = 'fixed',
+      discountValue = 0,
+      currency = 'USD',
+      dueDate,
+      paymentTerms,
+      notes,
+      internalNotes
+    } = req.body;
+
+    // Validate required fields
+    if (!lineItems || !Array.isArray(lineItems) || lineItems.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'Missing required fields: lineItems (array)',
+      });
+    }
+
+    // Validate line items
+    for (const item of lineItems) {
+      if (!item.description || !item.unitPrice || !item.quantity) {
+        return res.status(400).json({
+          success: false,
+          message: 'Each line item must have description, unitPrice, and quantity',
+        });
+      }
+    }
+
+    const project = await Project.findById(id)
+      .populate('client');
+
+    if (!project) {
+      return res.status(404).json({
+        success: false,
+        message: 'Project not found',
+      });
+    }
+
+    // Check if employee is assigned to the project (if not owner)
+    if (req.user.role === 'employee' &&
+        !project.assignedEmployees.some(emp => emp._id.toString() === req.user._id.toString())) {
+      return res.status(403).json({
+        success: false,
+        message: 'You are not assigned to this project',
+      });
+    }
+
+    const invoice = new ClientInvoice({
+      clientId: project.client._id,
+      projectId: id,
+      lineItems,
+      taxRate,
+      discountType,
+      discountValue,
+      currency,
+      dueDate: new Date(dueDate),
+      paymentTerms,
+      notes,
+      internalNotes,
+      createdBy: req.user._id,
+    });
+
+    await invoice.save();
+
+    const io = req.app.get('io');
+    if (io) {
+      io.emit('projectInvoiceCreated', {
+        projectId: id,
+        clientId: project.client._id,
+        invoice
+      });
+    }
+
+    res.status(201).json({
+      success: true,
+      message: 'Invoice created successfully',
+      data: { invoice },
+    });
+  } catch (error) {
+    console.error('Create project invoice error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to create project invoice',
+      error: error.message,
+    });
+  }
+});
+
+/**
+ * @route   GET /api/projects/:id/invoices
+ * @desc    Get project invoices
+ * @access  Private (Owner, Employee, Client with access)
+ */
+router.get('/:id/invoices', authenticate, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const {
+      page = 1,
+      limit = 20,
+      status,
+      sortBy = 'createdAt',
+      sortOrder = 'desc'
+    } = req.query;
+
+    const project = await Project.findById(id)
+      .populate('client');
+
+    if (!project) {
+      return res.status(404).json({
+        success: false,
+        message: 'Project not found',
+      });
+    }
+
+    // Check access permissions
+    const hasAccess =
+      req.user.role === 'owner' ||
+      (req.user.role === 'client' && project.client._id.toString() === req.user._id.toString()) ||
+      (req.user.role === 'employee' && project.assignedEmployees.some(emp => emp._id.toString() === req.user._id.toString()));
+
+    if (!hasAccess) {
+      return res.status(403).json({
+        success: false,
+        message: 'Access denied',
+      });
+    }
+
+    const sortConfig = {};
+    sortConfig[sortBy] = sortOrder === 'desc' ? -1 : 1;
+
+    let query = { projectId: id };
+    if (status) query.status = status;
+
+    const invoices = await ClientInvoice.find(query)
+      .sort(sortConfig)
+      .limit(limit * 1)
+      .skip((page - 1) * limit);
+
+    const total = await ClientInvoice.countDocuments(query);
+
+    res.json({
+      success: true,
+      data: {
+        invoices,
+        pagination: {
+          current: parseInt(page),
+          pages: Math.ceil(total / limit),
+          total,
+        },
+      },
+    });
+  } catch (error) {
+    console.error('Get project invoices error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to get project invoices',
+      error: error.message,
+    });
+  }
+});
+
 module.exports = router;
