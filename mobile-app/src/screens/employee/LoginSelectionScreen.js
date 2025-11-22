@@ -6,7 +6,6 @@ import {
   TouchableOpacity,
   Dimensions,
   Animated,
-  ImageBackground,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Feather } from '@expo/vector-icons';
