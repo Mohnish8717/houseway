@@ -6,7 +6,6 @@ import {
   TouchableOpacity,
   Dimensions,
   Animated,
-  ImageBackground,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Feather } from '@expo/vector-icons';
@@ -46,24 +45,18 @@ const LoginSelectionScreen = ({ navigation }) => {
   return (
     <View style={styles.container}>
       {/* Background with gradient and floating blobs */}
-      <ImageBackground
-        source={require('../../../assets/images/blue-beige-pattern.png')}
-        style={styles.backgroundImage}
-        imageStyle={styles.backgroundImageStyle}
-      >
-        <LinearGradient
-          colors={['#3E60D8', '#566FE0', '#7487C1', '#FBF7EE']}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={styles.gradientOverlay}
-        />
+      <LinearGradient
+        colors={['#3E60D8', '#566FE0', '#7487C1', '#FBF7EE']}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={styles.backgroundGradient}
+      />
 
-        {/* Floating circular blobs */}
-        <View style={[styles.blob, styles.blob1]} />
-        <View style={[styles.blob, styles.blob2]} />
-        <View style={[styles.blob, styles.blob3]} />
-        <View style={[styles.blob, styles.blob4]} />
-      </ImageBackground>
+      {/* Floating circular blobs */}
+      <View style={[styles.blob, styles.blob1]} />
+      <View style={[styles.blob, styles.blob2]} />
+      <View style={[styles.blob, styles.blob3]} />
+      <View style={[styles.blob, styles.blob4]} />
 
       {/* Content */}
       <View style={styles.contentContainer}>
@@ -114,19 +107,26 @@ const LoginSelectionScreen = ({ navigation }) => {
           {/* Client Management Card */}
           <Animated.View style={[{ transform: [{ scale: cardScale2 }] }]}>
             <TouchableOpacity
-              style={[styles.dashboardCard, styles.clientManagementCard]}
+              style={styles.clientManagementCard}
               activeOpacity={0.9}
               onPressIn={() => handleCardPressIn(cardScale2)}
               onPressOut={() => handleCardPressOut(cardScale2)}
               onPress={handleClientManagementPress}
             >
-              <View style={[styles.cardIconContainer, styles.clientIconContainer]}>
-                <Feather name="users" size={40} color="#fff" />
-              </View>
-              <Text style={[styles.cardTitle, styles.clientCardTitle]}>Client Management</Text>
-              <Text style={[styles.cardDescription, styles.clientCardDescription]}>
-                Premium client relationship and project management
-              </Text>
+              <LinearGradient
+                colors={['#3E60D8', '#566FE0']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={styles.clientManagementGradient}
+              >
+                <View style={[styles.cardIconContainer, styles.clientIconContainer]}>
+                  <Feather name="users" size={40} color="#fff" />
+                </View>
+                <Text style={[styles.cardTitle, styles.clientCardTitle]}>Client Management</Text>
+                <Text style={[styles.cardDescription, styles.clientCardDescription]}>
+                  Premium client relationship and project management
+                </Text>
+              </LinearGradient>
               <View style={styles.cardFeatures}>
                 <View style={styles.featureItem}>
                   <Feather name="star" size={16} color="#FFD700" />
@@ -170,26 +170,13 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#FBF7EE',
   },
-  backgroundImage: {
+  backgroundGradient: {
     position: 'absolute',
     top: 0,
     left: 0,
     right: 0,
     bottom: 0,
-    width: width,
-    height: height,
-  },
-  backgroundImageStyle: {
-    opacity: 0.3,
-    resizeMode: 'cover',
-  },
-  gradientOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    opacity: 0.85,
+    opacity: 0.9,
   },
   blob: {
     position: 'absolute',
@@ -268,9 +255,27 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'rgba(62, 96, 216, 0.1)',
     position: 'relative',
+    overflow: 'hidden',
   },
   clientManagementCard: {
-    borderWidth: 0,
+    borderRadius: 24,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 8,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 24,
+    elevation: 12,
+    position: 'relative',
+    overflow: 'hidden',
+  },
+  clientManagementGradient: {
+    flex: 1,
+    borderRadius: 24,
+    padding: 30,
+    position: 'relative',
+    overflow: 'hidden',
   },
   cardIconContainer: {
     width: 80,

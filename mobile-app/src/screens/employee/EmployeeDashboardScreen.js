@@ -8,6 +8,7 @@ import {
   RefreshControl,
   Alert,
   ActivityIndicator,
+  Platform,
 } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import ModernHeader from '../../components/ModernHeader';
