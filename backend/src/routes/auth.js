@@ -10,6 +10,11 @@ const {
 } = require('../controllers/authController');
 
 const {
+  mockLogin,
+  mockGetProfile,
+} = require('../controllers/mockAuthController');
+
+const {
   validateRegistration,
   validateLogin,
   validateProfileUpdate,
