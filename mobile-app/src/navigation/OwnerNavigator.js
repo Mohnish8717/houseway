@@ -6,12 +6,14 @@ import theme from '../styles/theme';
 
 // Owner Screens
 import OwnerDashboardScreen from '../screens/owner/OwnerDashboardScreen';
-import EmployeeManagementScreen from '../screens/owner/EmployeeManagementScreen';
-import ClientOverviewScreen from '../screens/owner/ClientOverviewScreen';
-import FinancialReportsScreen from '../screens/owner/FinancialReportsScreen';
-import OwnerProfileScreen from '../screens/owner/OwnerProfileScreen';
-import ProjectApprovalScreen from '../screens/owner/ProjectApprovalScreen';
-import SettingsScreen from '../screens/owner/SettingsScreen';
+
+// Placeholder screens for future implementation
+const EmployeeManagementScreen = () => <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}><Text>Employee Management</Text></View>;
+const ClientOverviewScreen = () => <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}><Text>Client Overview</Text></View>;
+const FinancialReportsScreen = () => <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}><Text>Financial Reports</Text></View>;
+const OwnerProfileScreen = () => <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}><Text>Owner Profile</Text></View>;
+const ProjectApprovalScreen = () => <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}><Text>Project Approval</Text></View>;
+const SettingsScreen = () => <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}><Text>Settings</Text></View>;
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
