@@ -163,26 +163,13 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#FBF7EE',
   },
-  backgroundImage: {
+  backgroundGradient: {
     position: 'absolute',
     top: 0,
     left: 0,
     right: 0,
     bottom: 0,
-    width: width,
-    height: height,
-  },
-  backgroundImageStyle: {
-    opacity: 0.3,
-    resizeMode: 'cover',
-  },
-  gradientOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    opacity: 0.85,
+    opacity: 0.9,
   },
   blob: {
     position: 'absolute',
