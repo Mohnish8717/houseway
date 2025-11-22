@@ -125,14 +125,14 @@ io.on('connection', (socket) => {
   });
 });
 
-// Database connection
+// Database connection - continue even if MongoDB fails
 mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/houseway_db')
 .then(() => {
   console.log('✅ Connected to MongoDB');
 })
 .catch((error) => {
   console.error('❌ MongoDB connection error:', error);
-  process.exit(1);
+  console.log('⚠️  Continuing without database - using mock authentication');
 });
 
 // Routes
