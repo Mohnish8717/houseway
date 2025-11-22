@@ -40,21 +40,27 @@ const api = axios.create({
 api.interceptors.request.use(
   async (config) => {
     try {
+      console.log('[API Interceptor] Checking for token for request to:', config.url);
       const token = await AsyncStorage.getItem('@houseway_token');
       console.log('[API Interceptor] Token retrieved from AsyncStorage:', token ? 'Token present' : 'No token');
       
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
-        console.log('[API] Request to:', config.url, '- Token present:', !!token);
+        console.log('[API] Request to:', config.url, '- Token added to Authorization header');
       } else {
         console.warn('[API] No token found in AsyncStorage for request:', config.url);
       }
     } catch (error) {
-      console.error('Error getting token from storage:', error);
+      console.error('[API Interceptor] Error getting token from storage:', error);
     }
+    console.log('[API Interceptor] Final config:', {
+      url: config.url,
+      headers: config.headers
+    });
     return config;
   },
   (error) => {
+    console.error('[API Interceptor] Request interceptor error:', error);
     return Promise.reject(error);
   }
 );
@@ -65,6 +71,13 @@ api.interceptors.response.use(
     return response.data;
   },
   (error) => {
+    console.log('[API Response Interceptor] Error response:', {
+      status: error.response?.status,
+      statusText: error.response?.statusText,
+      data: error.response?.data,
+      url: error.config?.url
+    });
+    
     if (error.response?.status === 401) {
       // Token expired or invalid - could trigger logout here
       console.log('Unauthorized access - token may be expired');
