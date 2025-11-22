@@ -138,6 +138,7 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/houseway_
 // Routes
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/users', require('./routes/users'));
+app.use('/api/clients', require('./routes/clients'));
 app.use('/api/projects', require('./routes/projects'));
 app.use('/api/material-requests', require('./routes/materialRequests'));
 app.use('/api/quotations', require('./routes/quotations'));
