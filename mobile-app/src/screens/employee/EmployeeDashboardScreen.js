@@ -16,7 +16,7 @@ import ModernBottomNav, { EmployeeTabs } from '../../components/ModernBottomNav'
 import { useAuth } from '../../context/AuthContext';
 import { projectsAPI, materialRequestsAPI, dashboardAPI } from '../../utils/api';
 import theme from '../../styles/theme';
-import { socket } from '../../utils/socket';
+import socket from '../../utils/socket';
 
 const EmployeeDashboardScreen = ({ navigation }) => {
   const { user, logout } = useAuth();
@@ -39,12 +39,18 @@ const EmployeeDashboardScreen = ({ navigation }) => {
     loadDashboardData();
 
     // Listen for real-time updates through socket.io
-    socket.on('projectUpdated', handleRealtimeUpdate);
-    socket.on('materialRequest', handleRealtimeUpdate);
+    // Check if socket is properly initialized before adding listeners
+    if (socket && typeof socket.on === 'function') {
+      socket.on('projectUpdated', handleRealtimeUpdate);
+      socket.on('materialRequest', handleRealtimeUpdate);
+    }
 
     return () => {
-      socket.off('projectUpdated', handleRealtimeUpdate);
-      socket.off('materialRequest', handleRealtimeUpdate);
+      // Check if socket is properly initialized before removing listeners
+      if (socket && typeof socket.off === 'function') {
+        socket.off('projectUpdated', handleRealtimeUpdate);
+        socket.off('materialRequest', handleRealtimeUpdate);
+      }
     };
   }, []);
 
@@ -56,6 +62,13 @@ const EmployeeDashboardScreen = ({ navigation }) => {
 
   const loadDashboardData = async () => {
     try {
+      // Check if user is authenticated before making API calls
+      if (!user) {
+        console.log('User not authenticated, skipping dashboard data load');
+        setIsLoading(false);
+        return;
+      }
+
       setIsLoading(true);
 
       // Load assigned projects, material requests, and recent activities
@@ -109,6 +122,13 @@ const EmployeeDashboardScreen = ({ navigation }) => {
   };
 
   const onRefresh = () => {
+    // Check if user is authenticated before refreshing
+    if (!user) {
+      console.log('User not authenticated, skipping refresh');
+      setRefreshing(false);
+      return;
+    }
+    
     setRefreshing(true);
     loadDashboardData();
   };
