@@ -86,6 +86,32 @@ const userSchema = new mongoose.Schema({
     preferredStyle: String,
     propertyType: String,
     timeline: String,
+    // Premium client management fields
+    clientStatus: {
+      type: String,
+      enum: ['active', 'at-risk', 'pending', 'inactive'],
+      default: 'active'
+    },
+    totalProjectsCompleted: {
+      type: Number,
+      default: 0
+    },
+    totalSpent: {
+      type: Number,
+      default: 0
+    },
+    preferredContact: {
+      type: String,
+      enum: ['email', 'phone', 'both'],
+      default: 'both'
+    },
+    lastProjectDate: Date,
+    tags: [String],
+    priorityLevel: {
+      type: String,
+      enum: ['low', 'medium', 'high', 'vip'],
+      default: 'medium'
+    }
   },
   lastLogin: {
     type: Date,
