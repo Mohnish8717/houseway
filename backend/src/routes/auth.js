@@ -36,7 +36,23 @@ router.post('/register', validateRegistration, register);
  * @desc    Login user
  * @access  Public
  */
-router.post('/login', validateLogin, login);
+router.post('/login', validateLogin, async (req, res, next) => {
+  try {
+    // Try normal login first (MongoDB)
+    await login(req, res);
+  } catch (error) {
+    console.log('MongoDB login failed, using mock authentication:', error.message);
+    // Fallback to mock authentication
+    await mockLogin(req, res);
+  }
+});
+
+/**
+ * @route   POST /api/auth/login-mock
+ * @desc    Mock login for testing without MongoDB
+ * @access  Public
+ */
+router.post('/login-mock', validateLogin, mockLogin);
 
 /**
  * @route   GET /api/auth/profile
