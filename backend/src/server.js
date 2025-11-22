@@ -144,16 +144,36 @@ try {
   app.use('/api/auth', require('./routes/mockAuth'));
   console.log('✅ Using mock authentication');
 }
-app.use('/api/users', require('./routes/users'));
-app.use('/api/clients', require('./routes/clients'));
-app.use('/api/projects', require('./routes/projects'));
-app.use('/api/material-requests', require('./routes/materialRequests'));
-app.use('/api/quotations', require('./routes/quotations'));
-app.use('/api/purchase-orders', require('./routes/purchaseOrders'));
-app.use('/api/service-requests', require('./routes/serviceRequests'));
-app.use('/api/files', require('./routes/files'));
-app.use('/api/dashboard', require('./routes/dashboard'));
-app.use('/api/work-status', require('./routes/workStatus'));
+
+// Other routes - load with fallbacks
+const routes = [
+  { path: '/api/users', file: './routes/users', name: 'Users' },
+  { path: '/api/clients', file: './routes/clients', name: 'Clients' },
+  { path: '/api/projects', file: './routes/projects', name: 'Projects' },
+  { path: '/api/material-requests', file: './routes/materialRequests', name: 'Material Requests' },
+  { path: '/api/quotations', file: './routes/quotations', name: 'Quotations' },
+  { path: '/api/purchase-orders', file: './routes/purchaseOrders', name: 'Purchase Orders' },
+  { path: '/api/service-requests', file: './routes/serviceRequests', name: 'Service Requests' },
+  { path: '/api/files', file: './routes/files', name: 'Files' },
+  { path: '/api/dashboard', file: './routes/dashboard', name: 'Dashboard' },
+  { path: '/api/work-status', file: './routes/workStatus', name: 'Work Status' },
+];
+
+routes.forEach(route => {
+  try {
+    app.use(route.path, require(route.file));
+    console.log(`✅ ${route.name} routes loaded`);
+  } catch (error) {
+    console.log(`❌ ${route.name} routes failed:`, error.message);
+    // Create a placeholder route that returns a message
+    app.use(route.path, (req, res) => {
+      res.status(503).json({
+        success: false,
+        message: `${route.name} service unavailable - database connection required`,
+      });
+    });
+  }
+});
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
