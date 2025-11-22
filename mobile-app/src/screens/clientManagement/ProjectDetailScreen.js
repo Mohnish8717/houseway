@@ -106,7 +106,7 @@ const ProjectDetailScreen = ({ navigation, route }) => {
         {/* Wave Header */}
         <WaveHeader
           title={project.title}
-          subtitle={`${getStatusColor(project.status)} • ${project.progress || 0}% complete`}
+          subtitle={`${getStatusColor(project.status)} • ${project.progress?.percentage || 0}% complete`}
           height={200}
           showBackButton
           backButtonPress={() => navigation.goBack()}
@@ -179,7 +179,7 @@ const OverviewTab = ({ project, navigation }) => (
 
     <View style={styles.statsGrid}>
       <View style={styles.statCard}>
-        <Text style={styles.statValue}>{project.progress || 0}%</Text>
+        <Text style={styles.statValue}>{project.progress?.percentage || 0}%</Text>
         <Text style={styles.statLabel}>Progress</Text>
       </View>
       <View style={styles.statCard}>

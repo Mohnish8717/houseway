@@ -114,11 +114,11 @@ const ProjectListScreen = ({ navigation, route }) => {
             <View
               style={[
                 styles.progressFill,
-                { width: `${item.progress || 0}%`, backgroundColor: getStatusColor(item.status) }
+                { width: `${item.progress?.percentage || 0}%`, backgroundColor: getStatusColor(item.status) }
               ]}
             />
           </View>
-          <Text style={styles.progressText}>{item.progress || 0}%</Text>
+          <Text style={styles.progressText}>{item.progress?.percentage || 0}%</Text>
         </View>
 
         {/* Project info */}
