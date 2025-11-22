@@ -226,7 +226,7 @@ const HomeDashboardScreen = ({ navigation }) => {
               </View>
             </View>
 
-            <View style={styles.activityItem}>
+            <View style={[styles.activityItem, styles.activityItemLastChild]}>
               <View style={[styles.activityIcon, { backgroundColor: '#FEF5E7' }]}>
                 <Feather name="camera" size={20} color="#E8B25D" />
               </View>
@@ -453,7 +453,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#F0F4F8',
   },
-  activityItem:lastChild: {
+  activityItemLastChild: {
     borderBottomWidth: 0,
   },
   activityIcon: {

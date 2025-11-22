@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, View } from 'react-native';
 import 'react-native-gesture-handler';
@@ -9,6 +9,12 @@ import AppNavigator from './src/navigation/AppNavigator';
 import WebStyleInjector from './src/components/WebStyleInjector.js';
 
 export default function App() {
+  useEffect(() => {
+    console.log('[App] Component mounted');
+  }, []);
+
+  console.log('[App] Rendering App component');
+
   return (
     <AuthProvider>
       <View style={styles.container}>

@@ -11,6 +11,8 @@ const initialState = {
   error: null,
 };
 
+console.log('[AuthContext] Initial state set:', initialState);
+
 // Action types
 const AUTH_ACTIONS = {
   SET_LOADING: 'SET_LOADING',
@@ -23,10 +25,11 @@ const AUTH_ACTIONS = {
 
 // Reducer
 const authReducer = (state, action) => {
-  console.log('[AuthReducer] Action:', action.type, 'Current isAuthenticated:', state.isAuthenticated);
+  console.log('[AuthReducer] Action:', action.type, 'Payload:', action.payload, 'Current state:', state);
   
   switch (action.type) {
     case AUTH_ACTIONS.SET_LOADING:
+      console.log('[AuthReducer] SET_LOADING action, new isLoading value:', action.payload);
       return {
         ...state,
         isLoading: action.payload,
@@ -50,6 +53,7 @@ const authReducer = (state, action) => {
       console.log('[AuthReducer] New state after logout:', { isAuthenticated: newState.isAuthenticated, user: newState.user });
       return newState;
     case AUTH_ACTIONS.SET_ERROR:
+      console.log('[AuthReducer] SET_ERROR action, error:', action.payload);
       return {
         ...state,
         error: action.payload,
@@ -66,6 +70,7 @@ const authReducer = (state, action) => {
         user: { ...state.user, ...action.payload },
       };
     default:
+      console.log('[AuthReducer] Unknown action type:', action.type);
       return state;
   }
 };
@@ -82,32 +87,40 @@ const STORAGE_KEYS = {
 // Provider component
 export const AuthProvider = ({ children }) => {
   const [state, dispatch] = useReducer(authReducer, initialState);
+  
+  console.log('[AuthProvider] Component mounted, initial state:', initialState);
 
   // Load stored auth data on app start
   useEffect(() => {
+    console.log('[AuthContext] useEffect triggered - loading stored auth');
     loadStoredAuth();
   }, []);
 
   const loadStoredAuth = async () => {
     try {
+      console.log('[AuthContext] Starting loadStoredAuth');
       dispatch({ type: AUTH_ACTIONS.SET_LOADING, payload: true });
       
       const [storedToken, storedUser] = await Promise.all([
         AsyncStorage.getItem(STORAGE_KEYS.TOKEN),
         AsyncStorage.getItem(STORAGE_KEYS.USER),
       ]);
+      
+      console.log('[AuthContext] Retrieved from storage:', { token: !!storedToken, user: !!storedUser });
 
       if (storedToken && storedUser) {
         const user = JSON.parse(storedUser);
+        console.log('[AuthContext] Found stored auth, dispatching LOGIN_SUCCESS');
         dispatch({
           type: AUTH_ACTIONS.LOGIN_SUCCESS,
           payload: { user, token: storedToken },
         });
       } else {
+        console.log('[AuthContext] No stored auth found, dispatching SET_LOADING false');
         dispatch({ type: AUTH_ACTIONS.SET_LOADING, payload: false });
       }
     } catch (error) {
-      console.error('Error loading stored auth:', error);
+      console.error('[AuthContext] Error loading stored auth:', error);
       dispatch({ type: AUTH_ACTIONS.SET_LOADING, payload: false });
     }
   };
