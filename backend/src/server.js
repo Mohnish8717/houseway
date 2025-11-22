@@ -135,15 +135,10 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/houseway_
   console.log('⚠️  Continuing without database - using mock authentication');
 });
 
-// Routes - Use mock auth when MongoDB is not available
-try {
-  app.use('/api/auth', require('./routes/auth'));
-  console.log('✅ Using MongoDB-based authentication');
-} catch (error) {
-  console.log('❌ MongoDB auth routes failed, using mock auth:', error.message);
-  app.use('/api/auth', require('./routes/mockAuth'));
-  console.log('✅ Using mock authentication');
-}
+// Routes - Use mock authentication for now
+console.log('❌ Forcing mock authentication for testing');
+app.use('/api/auth', require('./routes/mockAuth'));
+console.log('✅ Using mock authentication');
 
 // Other routes - load with fallbacks
 const routes = [
