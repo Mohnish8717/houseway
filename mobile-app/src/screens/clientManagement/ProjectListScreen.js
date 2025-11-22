@@ -18,17 +18,28 @@ const { width } = Dimensions.get('window');
 
 const ProjectListScreen = ({ navigation, route }) => {
   const { clientId } = route.params || {};
-  const { user } = useAuth();
+  const { user, isAuthenticated } = useAuth();
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
-    loadProjects();
-  }, [clientId]);
+    if (isAuthenticated && user) {
+      loadProjects();
+    } else {
+      setLoading(false);
+    }
+  }, [isAuthenticated, user, clientId]);
 
   const loadProjects = async () => {
     try {
+      // Check if user is authenticated before making API call
+      if (!isAuthenticated || !user) {
+        console.log('User not authenticated, skipping projects load');
+        setLoading(false);
+        return;
+      }
+      
       setLoading(true);
 
       let response;
@@ -51,6 +62,12 @@ const ProjectListScreen = ({ navigation, route }) => {
   };
 
   const handleRefresh = async () => {
+    if (!isAuthenticated || !user) {
+      console.log('User not authenticated, skipping refresh');
+      setRefreshing(false);
+      return;
+    }
+    
     setRefreshing(true);
     await loadProjects();
     setRefreshing(false);

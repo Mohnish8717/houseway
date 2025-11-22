@@ -22,7 +22,7 @@ import { clientsAPI } from '../../utils/api';
 const { width } = Dimensions.get('window');
 
 const ClientsListScreen = ({ navigation }) => {
-  const { user } = useAuth();
+  const { user, isAuthenticated } = useAuth();
   const [clients, setClients] = useState([]);
   const [filteredClients, setFilteredClients] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -38,9 +38,13 @@ const ClientsListScreen = ({ navigation }) => {
   const filters = ['All', 'Active', 'At Risk', 'Pending', 'Inactive'];
 
   useEffect(() => {
-    loadClients();
-    animateIn();
-  }, []);
+    if (isAuthenticated && user) {
+      loadClients();
+      animateIn();
+    } else {
+      setLoading(false);
+    }
+  }, [isAuthenticated, user]);
 
   useEffect(() => {
     filterClients();
@@ -63,6 +67,14 @@ const ClientsListScreen = ({ navigation }) => {
 
   const loadClients = async (isRefresh = false) => {
     try {
+      // Check if user is authenticated before making API call
+      if (!isAuthenticated || !user) {
+        console.log('User not authenticated, skipping clients load');
+        setLoading(false);
+        setRefreshing(false);
+        return;
+      }
+      
       if (isRefresh) {
         setRefreshing(true);
         setPage(1);
@@ -141,10 +153,18 @@ const ClientsListScreen = ({ navigation }) => {
   };
 
   const handleRefresh = () => {
+    if (!isAuthenticated || !user) {
+      console.log('User not authenticated, skipping refresh');
+      return;
+    }
     loadClients(true);
   };
 
   const handleLoadMore = () => {
+    if (!isAuthenticated || !user) {
+      console.log('User not authenticated, skipping load more');
+      return;
+    }
     if (!loading && hasMore) {
       setPage(prev => prev + 1);
       loadClients();

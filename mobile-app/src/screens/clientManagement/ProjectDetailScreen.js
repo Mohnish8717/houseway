@@ -9,11 +9,13 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { Feather } from '@expo/vector-icons';
+import { useAuth } from '../../context/AuthContext';
 import WaveHeader from '../../components/clientManagement/WaveHeader';
 import { projectsAPI } from '../../utils/api';
 
 const ProjectDetailScreen = ({ navigation, route }) => {
   const { projectId } = route.params;
+  const { user, isAuthenticated } = useAuth();
   const [project, setProject] = useState(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -22,11 +24,22 @@ const ProjectDetailScreen = ({ navigation, route }) => {
   const tabs = ['Overview', 'Timeline', 'Media', 'Invoices', 'Files', 'Notes'];
 
   useEffect(() => {
-    loadProject();
-  }, [projectId]);
+    if (isAuthenticated && user) {
+      loadProject();
+    } else {
+      setLoading(false);
+    }
+  }, [isAuthenticated, user, projectId]);
 
   const loadProject = async () => {
     try {
+      // Check if user is authenticated before making API call
+      if (!isAuthenticated || !user) {
+        console.log('User not authenticated, skipping project load');
+        setLoading(false);
+        return;
+      }
+      
       setLoading(true);
       const response = await projectsAPI.getProject(projectId);
 
@@ -41,6 +54,12 @@ const ProjectDetailScreen = ({ navigation, route }) => {
   };
 
   const handleRefresh = async () => {
+    if (!isAuthenticated || !user) {
+      console.log('User not authenticated, skipping refresh');
+      setRefreshing(false);
+      return;
+    }
+    
     setRefreshing(true);
     await loadProject();
     setRefreshing(false);

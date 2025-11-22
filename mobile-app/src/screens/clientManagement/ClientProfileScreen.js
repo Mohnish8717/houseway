@@ -13,6 +13,7 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { Feather } from '@expo/vector-icons';
 import { Svg, Path } from 'react-native-svg';
+import { useAuth } from '../../context/AuthContext';
 
 // Import components
 import FoldedPanel from '../../components/clientManagement/FoldedPanel';
@@ -24,6 +25,7 @@ const { width, height } = Dimensions.get('window');
 
 const ClientProfileScreen = ({ navigation, route }) => {
   const { clientId } = route.params;
+  const { user, isAuthenticated } = useAuth();
   const [client, setClient] = useState(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -37,11 +39,22 @@ const ClientProfileScreen = ({ navigation, route }) => {
   });
 
   useEffect(() => {
-    loadClientData();
-  }, [clientId]);
+    if (isAuthenticated && user) {
+      loadClientData();
+    } else {
+      setLoading(false);
+    }
+  }, [isAuthenticated, user, clientId]);
 
   const loadClientData = async () => {
     try {
+      // Check if user is authenticated before making API call
+      if (!isAuthenticated || !user) {
+        console.log('User not authenticated, skipping client data load');
+        setLoading(false);
+        return;
+      }
+      
       setLoading(true);
 
       const response = await clientsAPI.getClient(clientId);
@@ -70,6 +83,12 @@ const ClientProfileScreen = ({ navigation, route }) => {
   };
 
   const handleRefresh = async () => {
+    if (!isAuthenticated || !user) {
+      console.log('User not authenticated, skipping refresh');
+      setRefreshing(false);
+      return;
+    }
+    
     setRefreshing(true);
     await loadClientData();
     setRefreshing(false);
