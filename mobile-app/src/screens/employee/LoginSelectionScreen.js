@@ -130,15 +130,15 @@ const LoginSelectionScreen = ({ navigation }) => {
               <View style={styles.cardFeatures}>
                 <View style={styles.featureItem}>
                   <Feather name="star" size={16} color="#FFD700" />
-                  <Text style={styles.featureText}>Client Profiles</Text>
+                  <Text style={[styles.featureText, styles.clientFeatureText]}>Client Profiles</Text>
                 </View>
                 <View style={styles.featureItem}>
                   <Feather name="star" size={16} color="#FFD700" />
-                  <Text style={styles.featureText}>Timeline Events</Text>
+                  <Text style={[styles.featureText, styles.clientFeatureText]}>Timeline Events</Text>
                 </View>
                 <View style={styles.featureItem}>
                   <Feather name="star" size={16} color="#FFD700" />
-                  <Text style={styles.featureText}>Media Gallery</Text>
+                  <Text style={[styles.featureText, styles.clientFeatureText]}>Media Gallery</Text>
                 </View>
               </View>
               <View style={styles.cardFooter}>
@@ -323,7 +323,7 @@ const styles = StyleSheet.create({
     color: '#1B2540',
     fontWeight: '600',
   },
-  clientCardDescription .featureText: {
+  clientFeatureText: {
     color: 'rgba(255, 255, 255, 0.95)',
   },
   cardFooter: {

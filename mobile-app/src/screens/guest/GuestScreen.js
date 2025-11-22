@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   View,
   Text,
@@ -15,6 +15,12 @@ import ApiDebugger from '../../components/ApiDebugger';
 
 const GuestScreen = () => {
   const navigation = useNavigation();
+
+  useEffect(() => {
+    console.log('[GuestScreen] Component mounted');
+  }, []);
+
+  console.log('[GuestScreen] Rendering component');
 
   return (
     <ScrollView style={{...styles.container, ...webStyles.webContainer}}>
