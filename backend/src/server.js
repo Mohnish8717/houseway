@@ -135,10 +135,10 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/houseway_
   console.log('⚠️  Continuing without database - using mock authentication');
 });
 
-// Routes - Use simple authentication for testing
-console.log('❌ Forcing simple authentication for testing');
-app.use('/api/auth', require('./routes/simpleAuth'));
-console.log('✅ Using simple authentication');
+// Routes - Use normal authentication with database
+console.log('✅ Using database authentication');
+app.use('/api/auth', require('./routes/auth'));
+console.log('✅ Auth routes loaded');
 
 // Other routes - load with fallbacks
 const routes = [
