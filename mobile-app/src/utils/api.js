@@ -41,6 +41,8 @@ api.interceptors.request.use(
   async (config) => {
     try {
       const token = await AsyncStorage.getItem('@houseway_token');
+      console.log('[API Interceptor] Token retrieved from AsyncStorage:', token ? 'Token present' : 'No token');
+      
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
         console.log('[API] Request to:', config.url, '- Token present:', !!token);

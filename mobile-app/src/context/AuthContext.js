@@ -106,7 +106,7 @@ export const AuthProvider = ({ children }) => {
         AsyncStorage.getItem(STORAGE_KEYS.USER),
       ]);
       
-      console.log('[AuthContext] Retrieved from storage:', { token: !!storedToken, user: !!storedUser });
+      console.log('[AuthContext] Retrieved from storage:', { token: storedToken, user: storedUser });
 
       if (storedToken && storedUser) {
         const user = JSON.parse(storedUser);
@@ -134,6 +134,8 @@ export const AuthProvider = ({ children }) => {
       
       if (response.success) {
         const { user, token } = response.data;
+        
+        console.log('[AuthContext] Login successful, storing token and user:', { token, user });
         
         // Store in AsyncStorage
         await Promise.all([
