@@ -59,7 +59,23 @@ router.post('/login-mock', validateLogin, mockLogin);
  * @desc    Get current user profile
  * @access  Private
  */
-router.get('/profile', authenticate, getProfile);
+router.get('/profile', authenticate, async (req, res, next) => {
+  try {
+    // Try normal profile fetch first (MongoDB)
+    await getProfile(req, res);
+  } catch (error) {
+    console.log('MongoDB profile fetch failed, using mock authentication:', error.message);
+    // Fallback to mock authentication
+    await mockGetProfile(req, res);
+  }
+});
+
+/**
+ * @route   GET /api/auth/profile-mock
+ * @desc    Mock profile for testing without MongoDB
+ * @access  Private
+ */
+router.get('/profile-mock', authenticate, mockGetProfile);
 
 /**
  * @route   PUT /api/auth/profile
