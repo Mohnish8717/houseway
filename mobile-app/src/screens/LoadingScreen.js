@@ -5,24 +5,12 @@ import {
   ActivityIndicator,
   StyleSheet,
   Image,
-  TouchableOpacity,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
 
 const LoadingScreen = () => {
-  const navigation = useNavigation();
-
   useEffect(() => {
     console.log('[LoadingScreen] Component mounted');
-    
-    // Timeout to navigate to auth if stuck in loading state
-    const timeout = setTimeout(() => {
-      console.log('[LoadingScreen] Timeout reached, navigating to Auth');
-      navigation.navigate('Auth');
-    }, 5000); // 5 second timeout
-
-    return () => clearTimeout(timeout);
-  }, [navigation]);
+  }, []);
 
   return (
     <View style={styles.container}>
@@ -43,17 +31,6 @@ const LoadingScreen = () => {
         
         <Text style={styles.loadingText}>Loading...</Text>
         <Text style={styles.debugText}>If this screen persists, check console logs</Text>
-        <Text style={styles.debugText}>Will automatically navigate to login in 5 seconds</Text>
-        
-        <TouchableOpacity 
-          style={styles.debugButton}
-          onPress={() => {
-            console.log('[LoadingScreen] Manual navigation to Auth');
-            navigation.navigate('Auth');
-          }}
-        >
-          <Text style={styles.debugButtonText}>Go to Login (Debug)</Text>
-        </TouchableOpacity>
       </View>
     </View>
   );
@@ -101,17 +78,6 @@ const styles = StyleSheet.create({
     color: '#999',
     marginTop: 10,
     textAlign: 'center',
-  },
-  debugButton: {
-    marginTop: 30,
-    padding: 10,
-    backgroundColor: '#2196F3',
-    borderRadius: 5,
-  },
-  debugButtonText: {
-    color: 'white',
-    fontSize: 14,
-    fontWeight: 'bold',
   },
 });
 
