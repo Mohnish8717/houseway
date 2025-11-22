@@ -47,7 +47,7 @@ const WaveHeader = ({
           </View>
         )}
 
-        <View style={styles.textContainer}>
+        <View style={showBackButton ? styles.textContainerCentered : styles.textContainer}>
           <Text style={styles.title}>{title}</Text>
           {subtitle && <Text style={styles.subtitle}>{subtitle}</Text>}
         </View>
@@ -103,7 +103,11 @@ const styles = StyleSheet.create({
   },
   textContainer: {
     flex: 1,
-    alignItems: showBackButton ? 'center' : 'flex-start',
+    alignItems: 'flex-start',
+  },
+  textContainerCentered: {
+    flex: 1,
+    alignItems: 'center',
   },
   title: {
     fontSize: 32,
