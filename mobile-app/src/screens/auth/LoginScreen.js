@@ -129,8 +129,30 @@ const LoginScreen = ({ navigation }) => {
           {/* Demo Credentials */}
           <View style={styles.demoContainer}>
             <Text style={styles.demoTitle}>Demo Credentials:</Text>
-            <Text style={styles.demoText}>Email: john.doe@example.com</Text>
-            <Text style={styles.demoText}>Password: Password123</Text>
+
+            <View style={styles.demoRoleContainer}>
+              <Text style={styles.demoRoleTitle}>👑 Admin (Owner):</Text>
+              <Text style={styles.demoText}>Email: admin@houseway.com</Text>
+              <Text style={styles.demoText}>Password: Admin123</Text>
+            </View>
+
+            <View style={styles.demoRoleContainer}>
+              <Text style={styles.demoRoleTitle}>👷 Employee:</Text>
+              <Text style={styles.demoText}>Email: employee@houseway.com</Text>
+              <Text style={styles.demoText}>Password: Employee123</Text>
+            </View>
+
+            <View style={styles.demoRoleContainer}>
+              <Text style={styles.demoRoleTitle}>🔧 Vendor:</Text>
+              <Text style={styles.demoText}>Email: vendor@houseway.com</Text>
+              <Text style={styles.demoText}>Password: Vendor123</Text>
+            </View>
+
+            <View style={styles.demoRoleContainer}>
+              <Text style={styles.demoRoleTitle}>🏠 Client:</Text>
+              <Text style={styles.demoText}>Email: client@houseway.com</Text>
+              <Text style={styles.demoText}>Password: Client123</Text>
+            </View>
           </View>
         </View>
       </ScrollView>
