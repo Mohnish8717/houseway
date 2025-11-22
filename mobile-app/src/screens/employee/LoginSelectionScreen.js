@@ -107,19 +107,26 @@ const LoginSelectionScreen = ({ navigation }) => {
           {/* Client Management Card */}
           <Animated.View style={[{ transform: [{ scale: cardScale2 }] }]}>
             <TouchableOpacity
-              style={[styles.dashboardCard, styles.clientManagementCard]}
+              style={styles.clientManagementCard}
               activeOpacity={0.9}
               onPressIn={() => handleCardPressIn(cardScale2)}
               onPressOut={() => handleCardPressOut(cardScale2)}
               onPress={handleClientManagementPress}
             >
-              <View style={[styles.cardIconContainer, styles.clientIconContainer]}>
-                <Feather name="users" size={40} color="#fff" />
-              </View>
-              <Text style={[styles.cardTitle, styles.clientCardTitle]}>Client Management</Text>
-              <Text style={[styles.cardDescription, styles.clientCardDescription]}>
-                Premium client relationship and project management
-              </Text>
+              <LinearGradient
+                colors={['#3E60D8', '#566FE0']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={styles.clientManagementGradient}
+              >
+                <View style={[styles.cardIconContainer, styles.clientIconContainer]}>
+                  <Feather name="users" size={40} color="#fff" />
+                </View>
+                <Text style={[styles.cardTitle, styles.clientCardTitle]}>Client Management</Text>
+                <Text style={[styles.cardDescription, styles.clientCardDescription]}>
+                  Premium client relationship and project management
+                </Text>
+              </LinearGradient>
               <View style={styles.cardFeatures}>
                 <View style={styles.featureItem}>
                   <Feather name="star" size={16} color="#FFD700" />
