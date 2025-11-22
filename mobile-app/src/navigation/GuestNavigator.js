@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 
 // Import Guest screens
@@ -9,6 +9,12 @@ import RegisterScreen from '../screens/auth/RegisterScreen';
 const Stack = createStackNavigator();
 
 const GuestNavigator = () => {
+  useEffect(() => {
+    console.log('[GuestNavigator] Component mounted');
+  }, []);
+
+  console.log('[GuestNavigator] Rendering navigation stack');
+
   return (
     <Stack.Navigator
       initialRouteName="GuestHome"
