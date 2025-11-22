@@ -260,15 +260,31 @@ const styles = StyleSheet.create({
     borderColor: '#e3f2fd',
   },
   demoTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#1976d2',
+    marginBottom: 10,
+    textAlign: 'center',
+  },
+  demoRoleContainer: {
+    marginBottom: 12,
+    padding: 8,
+    backgroundColor: '#ffffff',
+    borderRadius: 6,
+    borderLeftWidth: 3,
+    borderLeftColor: '#1976d2',
+  },
+  demoRoleTitle: {
     fontSize: 14,
     fontWeight: '600',
     color: '#1976d2',
-    marginBottom: 5,
+    marginBottom: 4,
   },
   demoText: {
-    fontSize: 14,
+    fontSize: 13,
     color: '#1976d2',
     fontFamily: Platform.OS === 'ios' ? 'Courier' : 'monospace',
+    marginBottom: 2,
   },
 });
 
